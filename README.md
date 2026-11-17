@@ -95,23 +95,6 @@ The entrypoint, `entrypoint.sh`, runs the suite selected by `TEST_SUITE`, genera
 
 3. Test reports should be published to S3 using the script in `./bin/publish-tests.sh`
 
-## Running on GitHub
-
-Alternatively you can run the test suite as a GitHub workflow.
-Test runs on GitHub are not able to connect to the CDP Test environments. Instead, they run the tests agains a version of the services running in docker.
-A docker compose `compose.yml` is included as a starting point, which includes the databases (mongodb, redis) and infrastructure (localstack) pre-setup.
-
-Steps:
-
-1. Edit the compose.yml to include your services.
-2. Modify the scripts in docker/scripts to pre-populate the database, if required and create any localstack resources.
-3. Test the setup locally with `docker compose up` and `npm test`, with `ENVIRONMENT` unset so the tests use the local services
-4. Set up the workflow trigger in `.github/workflows/journey-tests`.
-
-By default, the provided workflow will run when triggered manually from GitHub or when triggered by another workflow.
-
-If you want to use the repository exclusively for running docker composed based test suites consider displaying the publish.yml workflow.
-
 ## Licence
 
 THIS INFORMATION IS LICENSED UNDER THE CONDITIONS OF THE OPEN GOVERNMENT LICENCE found at:

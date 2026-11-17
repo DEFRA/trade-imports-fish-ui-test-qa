@@ -11,8 +11,7 @@ export default defineConfig([
       'allure-results/',
       'allure-report/',
       'playwright-report/',
-      'test-results/',
-      'docker/'
+      'test-results/'
     ]
   },
 
