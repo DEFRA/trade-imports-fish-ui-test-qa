@@ -11,7 +11,7 @@
     "#pages/*": "./pages/*"
   },
   "scripts": {
-    "clean": "rm -rf test-results playwright-report allure-results allure-report FAILED",
+    "clean": "node -e \"for (const p of ['test-results','playwright-report','allure-results','allure-report','FAILED']) fs.rmSync(p, { recursive: true, force: true })\"",
     "test": "npm run clean && playwright test",
     "test:importer": "npm run clean && playwright test tests/importer/",
     "test:inspector": "npm run clean && playwright test tests/inspector/",
