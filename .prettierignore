@@ -1,3 +1,7 @@
 package-lock.json
 node_modules
 docker
+playwright-report
+test-results
+allure-report
+allure-results
