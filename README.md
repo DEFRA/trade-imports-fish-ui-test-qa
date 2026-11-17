@@ -1,99 +1,176 @@
-trade-imports-fish-ui-test-qa
+# trade-imports-fish-ui-test-qa
 
-End-to-end tests for the fish importer and inspector services, written with [Playwright](https://playwright.dev) and JavaScript. They run against a CDP environment from the CDP Portal, or against services running locally.
+End-to-end tests for the fish **importer** and **inspector** services. They use [Playwright](https://playwright.dev) with JavaScript, and run in the Defra Core Delivery Platform (CDP) or on your own machine.
 
-- [Local](#local-development)
-  - [Requirements](#requirements)
-    - [Node.js](#nodejs)
-  - [Setup](#setup)
-  - [Running tests](#running-tests)
-  - [Importer and inspector suites](#importer-and-inspector-suites)
-  - [Debugging tests](#debugging-tests)
-- [Production](#production)
+The setup follows [DEFRA/trade-imports-ins-tests](https://github.com/DEFRA/trade-imports-ins-tests) as closely as possible. That repo uses TypeScript, and this one uses plain JavaScript.
+
+- [Status](#status)
+- [Quick start](#quick-start)
+- [How the tests are organised](#how-the-tests-are-organised)
+- [Running tests](#running-tests)
+- [Adding a test](#adding-a-test)
+- [Reports and failures](#reports-and-failures)
+- [Running in CDP](#running-in-cdp)
+- [Code quality](#code-quality)
 - [Licence](#licence)
-  - [About the licence](#about-the-licence)
 
-## Local Development
+## Status
 
-### Requirements
+| Area                                                  | State                                                                                           |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Tests (importer and inspector)                        | Working. They run against the CDP `test` environment.                                           |
+| Playwright config, reports and the `FAILED` marker    | Working and checked locally.                                                                    |
+| `entrypoint.sh` and the `PROFILE` setting             | Working when run locally. Not yet run inside a container or in the CDP Portal.                  |
+| **Dockerfile**                                        | **Not done.** It is still the old WebdriverIO version, so the image cannot run these tests yet. |
+| **CDP Portal run and S3 publishing**                  | **Not tested.** It needs the Dockerfile first, and the suite registered in the portal.          |
+| **Running against local services**                    | **Not tested.** The inspector's local port (`3001`) is a guess and needs confirming.            |
+| Checks on pull requests                               | Format and lint only. The tests do not run on GitHub.                                           |
+| Extra suites (accessibility, cross-browser, security) | Not included. The reference repo has them.                                                      |
 
-#### Node.js
+## Quick start
 
-Please install [Node.js](http://nodejs.org/) `>= v24` and [npm](https://nodejs.org/) `>= v11`. You will find it
-easier to use the Node Version Manager [nvm](https://github.com/creationix/nvm)
-
-To use the correct version of Node.js for this application, via nvm:
-
-```bash
-nvm use
-```
-
-### Setup
-
-Install application dependencies and the Playwright browser:
+You need [Node.js](https://nodejs.org) `>= 24` (see `.nvmrc`; with [nvm](https://github.com/nvm-sh/nvm) run `nvm use`).
 
 ```bash
 npm install
 npx playwright install chromium
-```
-
-### Running tests
-
-Set `ENVIRONMENT` to run against a deployed CDP environment, for example `test`. The services are then reached at `https://<service>.<environment>.cdp-int.defra.cloud`. If it is not set, the tests run against local services (importer on `http://localhost:3000`, inspector on `http://localhost:3001`). Running against `prod` is refused.
-
-```bash
 ENVIRONMENT=test npm test
 ```
 
-On Windows PowerShell, set the variable first: `$env:ENVIRONMENT='test'; npm test`.
+On Windows PowerShell:
 
-### Importer and inspector suites
-
-The repository is shared by the importer and inspector teams. The folder a spec lives in decides which service it tests, and so its base URL:
-
-| Folder             | Service                            |
-| ------------------ | ---------------------------------- |
-| `tests/importer/`  | `trade-imports-fish-importer-fe`   |
-| `tests/inspector/` | `trade-imports-fish-inspection-fe` |
-
-Page objects are in `pages/`, mirroring the same folders. Specs import `test` and `expect` from `#fixtures`, which sets the `baseURL` for the spec's folder. Specs are also tagged `@importer` or `@inspector`.
-
-```bash
-npm run test:importer
-npm run test:inspector
+```powershell
+$env:ENVIRONMENT='test'; npm test
 ```
 
-The CDP entrypoint selects a suite with the `PROFILE` environment variable, as in the CDP Portal: `default` (everything, also used when unset), `importer` or `importer:e2e`, `inspector` or `inspector:e2e`.
+`ENVIRONMENT=test` points the tests at the CDP `test` environment, which is reachable without a VPN.
 
-### Debugging tests
+## How the tests are organised
 
-```bash
-npm run test:headed
-npx playwright test --ui
+**The folder a test is in decides which service it tests.**
+
+| Folder             | Service                            | Address when `ENVIRONMENT=test`                                     |
+| ------------------ | ---------------------------------- | ------------------------------------------------------------------- |
+| `tests/importer/`  | `trade-imports-fish-importer-fe`   | `https://trade-imports-fish-importer-fe.test.cdp-int.defra.cloud`   |
+| `tests/inspector/` | `trade-imports-fish-inspection-fe` | `https://trade-imports-fish-inspection-fe.test.cdp-int.defra.cloud` |
+
+This lets the importer and inspector teams share one repo without their tests interfering with each other.
+
+```text
+tests/                   the tests (*.spec.js), one folder per service
+  importer/
+    home-page.spec.js
+    notification/        mirrors the URL /notification/...
+  inspector/
+pages/                   page objects: one class per page, mirroring tests/
+  base-page.js           shared actions (open a page, cookie banner, heading)
+fixtures/index.js        the `test` every spec imports; sets the base address from the folder
+utils/playwright/        config helpers and the CDP FAILED-file reporter
+playwright.config.js     Playwright settings: browser, timeouts, retries, reporters
+entrypoint.sh            what CDP runs in the container
+bin/publish-tests.sh     uploads the report to S3 (CDP)
 ```
 
-After a run, open the Playwright report with `npx playwright show-report`.
+Folders under `tests/` and `pages/` follow the website's URLs. For example `/notification/guidance` is `notification/guidance-page`.
 
-## Production
+## Running tests
 
-### Running the tests
+| Command                                    | What it does                                          |
+| ------------------------------------------ | ----------------------------------------------------- |
+| `npm test`                                 | Runs every test (importer and inspector)              |
+| `npm run test:importer`                    | Runs only the importer tests                          |
+| `npm run test:inspector`                   | Runs only the inspector tests                         |
+| `npm run test:headed`                      | Runs with a visible browser, so you can watch         |
+| `npx playwright test --ui`                 | Opens Playwright's interactive UI, good for debugging |
+| `npx playwright test --grep @notification` | Runs only tests with that tag                         |
 
-Tests are run from the CDP-Portal under the Test Suites section. Before any changes can be run, a new docker image must be built, this will happen automatically when a pull request is merged into the `main` branch.
-You can check the progress of the build under the actions section of this repository. Builds typically take around 1-2 minutes.
+Set `ENVIRONMENT` first for all of these (see [Quick start](#quick-start)).
 
-The results of the test run are made available in the portal.
+- **Without `ENVIRONMENT`,** the tests expect the services running locally: importer on `http://localhost:3000` and inspector on `http://localhost:3001`. The inspector port is unconfirmed and this mode is untested.
+- **`prod` is refused.** The tests never run against production.
 
-The entrypoint, `entrypoint.sh`, runs the suite selected by `PROFILE`, generates the Allure report and publishes it. A `FAILED` file is written when any test fails, no results are recorded, or the report cannot be generated, and the entrypoint then exits 1.
+## Adding a test
 
-## Requirements of CDP Environment Tests
+1. Put the spec in the folder for its service, named `<page>.spec.js`, such as `tests/importer/notification/guidance-page.spec.js`.
+2. Import `test` and `expect` from `#fixtures`, not from `@playwright/test`. This is what sets the right base address.
+3. Put page locators and actions in a class in `pages/`, mirroring the same folder. It extends `BasePage`.
+4. Add a tag such as `@importer`, `@inspector` or `@notification`.
 
-1. Your service builds as a docker container using the `.github/workflows/publish.yml`
-   The workflow tags the docker images allowing the CDP Portal to identify how the container should be run on the platform.
-   It also ensures its published to the correct docker repository.
+```js
+import { test, expect } from '#fixtures'
+import { GuidancePage } from '#pages/importer/notification/guidance-page.js'
 
-2. The Dockerfile's entrypoint script should return exit code of 0 if the test suite passes or 1/>0 if it fails
+test.describe('Guidance page', { tag: ['@importer', '@notification'] }, () => {
+  test('should show the guidance heading', async ({ page }) => {
+    const guidancePage = new GuidancePage(page)
+    await guidancePage.open()
+    await expect(guidancePage.pageHeading()).toHaveText(
+      'Submit your seafood import notification'
+    )
+  })
+})
+```
 
-3. Test reports should be published to S3 using the script in `./bin/publish-tests.sh`
+Some tests only check the URL, because the page they reach is still being built. Each says so in a comment, and should be extended when the page is ready.
+
+## Reports and failures
+
+After a run:
+
+- `npx playwright show-report` opens the Playwright report.
+- `npm run report` builds the Allure report into `allure-report/`.
+- `npm run clean` deletes the old results, reports and `FAILED` file.
+
+**The `FAILED` file** is how CDP knows a run failed. Our reporter in `utils/playwright/failed-suite-reporter.js` writes it when a test fails. A test that fails and then passes on its retry counts as flaky and does not fail the run. Each test is retried once.
+
+## Running in CDP
+
+> **Not finished.** See [Status](#status). The steps below describe how it is meant to work.
+
+CDP builds a Docker image from this repo, and the portal runs it as a test suite. `entrypoint.sh` is what runs inside the container:
+
+1. Cleans old results.
+2. Runs the tests chosen by `PROFILE`.
+3. Builds the Allure report, with a fallback page if that fails.
+4. Uploads the report to S3 using `bin/publish-tests.sh`.
+5. Exits with 1 if a `FAILED` file exists, otherwise 0.
+
+The `FAILED` file is written when a test fails, no results were recorded, the profile is unknown, or the report cannot be built.
+
+### Choosing what runs: `PROFILE`
+
+The CDP Portal sets `PROFILE` to choose a suite:
+
+| `PROFILE`                      | Runs                                         |
+| ------------------------------ | -------------------------------------------- |
+| not set, or `default`          | All tests (importer and inspector)           |
+| `importer` or `importer:e2e`   | Only `tests/importer/`                       |
+| `inspector` or `inspector:e2e` | Only `tests/inspector/`                      |
+| anything else                  | Fails, writes `FAILED`, still gives a report |
+
+**If `PROFILE` is not set, both teams' tests run,** so a failure in one team's tests fails the other team's run. Set a profile to run only your own.
+
+### What CDP requires
+
+1. The service builds as a Docker image through `.github/workflows/publish.yml`, which only runs when something is merged to `main`.
+2. The entrypoint exits 0 when the suite passes and non-zero when it fails.
+3. The report is published to S3 using `./bin/publish-tests.sh`.
+
+### Still to do
+
+- Update the `Dockerfile` for Playwright and build it. It needs a Playwright base image that includes the browsers, and `npm ci`.
+- Check with the platform team that the suite is registered in the portal, and how profiles are set up for it.
+- Decide how to test the image before merging. `publish.yml` only builds on `main`, while the reference repo also has a branch-publish workflow.
+
+## Code quality
+
+| Command                | What it does                        |
+| ---------------------- | ----------------------------------- |
+| `npm run lint`         | Checks the code with ESLint         |
+| `npm run format:check` | Checks the formatting with Prettier |
+| `npm run format`       | Fixes the formatting                |
+
+Both run on every pull request. The repo also has a Husky pre-commit hook that runs them before each commit, but it is **not installed automatically**, because `.npmrc` sets `ignore-scripts=true`. Install it once with `npm run setup:husky`.
 
 ## Licence
 
