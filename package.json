@@ -8,8 +8,7 @@
   },
   "imports": {
     "#fixtures": "./fixtures/index.js",
-    "#page-objects/*": "./test/page-objects/*",
-    "#components/*": "./test/components/*"
+    "#pages/*": "./pages/*"
   },
   "scripts": {
     "clean": "rm -rf test-results playwright-report allure-results allure-report FAILED",
