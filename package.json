@@ -7,14 +7,15 @@
     "node": ">=24"
   },
   "imports": {
+    "#fixtures": "./fixtures/index.js",
     "#page-objects/*": "./test/page-objects/*",
     "#components/*": "./test/components/*"
   },
   "scripts": {
     "clean": "rm -rf test-results playwright-report allure-results allure-report FAILED",
     "test": "npm run clean && playwright test",
-    "test:importer": "npm run clean && playwright test --project=importer",
-    "test:inspector": "npm run clean && playwright test --project=inspector",
+    "test:importer": "npm run clean && playwright test tests/importer/",
+    "test:inspector": "npm run clean && playwright test tests/inspector/",
     "test:headed": "npm run clean && playwright test --headed",
     "format": "prettier --write 'test/**/*.js' '**/*.{js,md,json,config.js}'",
     "format:check": "prettier --check 'test/**/*.js' '**/*.{js,md,json,config.js}'",
