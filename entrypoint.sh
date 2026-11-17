@@ -19,16 +19,28 @@ write_fallback_report_html() {
 EOF
 }
 
+# PROFILE selects the test suite to run, as in the CDP Portal (case-sensitive):
+#   default (or unset)  - every domain
+#   <domain>            - one domain's tests/<domain>/ folder, e.g. importer
+#   <domain>:e2e        - same as <domain>
+# Domains: importer, inspector
 echo "run_id: $RUN_ID"
 
-# importer, inspector or all (default). Each team's suite is the tests/<domain>/ folder.
-TEST_SUITE=$(echo "${TEST_SUITE:-all}" | tr '[:upper:]' '[:lower:]')
-case "$TEST_SUITE" in
-  all) TEST_PATH="tests/" ;;
-  importer | inspector) TEST_PATH="tests/$TEST_SUITE/" ;;
-  *) TEST_PATH="" ;;
-esac
-echo "test suite: $TEST_SUITE"
+PROFILE="${PROFILE:-default}"
+echo "profile: $PROFILE"
+domain="${PROFILE%%:*}"
+suite="${PROFILE#*:}"
+[ "$suite" = "$PROFILE" ] && suite="e2e"
+
+TEST_PATH=""
+if [ "$PROFILE" = "default" ]; then
+  TEST_PATH="tests/"
+elif [ "$suite" = "e2e" ]; then
+  case "$domain" in
+    # The trailing slash matters: Playwright treats the path as a regex
+    importer | inspector) TEST_PATH="tests/$domain/" ;;
+  esac
+fi
 
 # Stale results or a stale FAILED marker must never affect this run
 rm -rf test-results playwright-report "$RESULTS_DIR" "$REPORT_DIR" FAILED
@@ -37,7 +49,7 @@ rm -rf test-results playwright-report "$RESULTS_DIR" "$REPORT_DIR" FAILED
 # (crash, config error, no tests found) is recorded here too, so a run that
 # dies before finishing can never report a pass.
 if [ -z "$TEST_PATH" ]; then
-  echo "unknown TEST_SUITE '$TEST_SUITE' (expected importer, inspector or all)" >> FAILED
+  echo "unknown PROFILE '$PROFILE' (expected default, importer, inspector, importer:e2e or inspector:e2e)" >> FAILED
 else
   npx playwright test "$TEST_PATH" || echo "playwright test exited $? before completing" >> FAILED
 fi

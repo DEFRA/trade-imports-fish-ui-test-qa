@@ -63,7 +63,7 @@ npm run test:importer
 npm run test:inspector
 ```
 
-The CDP entrypoint selects a suite with the `TEST_SUITE` environment variable: `importer`, `inspector` or `all` (the default).
+The CDP entrypoint selects a suite with the `PROFILE` environment variable, as in the CDP Portal: `default` (everything, also used when unset), `importer` or `importer:e2e`, `inspector` or `inspector:e2e`.
 
 ### Debugging tests
 
@@ -83,7 +83,7 @@ You can check the progress of the build under the actions section of this reposi
 
 The results of the test run are made available in the portal.
 
-The entrypoint, `entrypoint.sh`, runs the suite selected by `TEST_SUITE`, generates the Allure report and publishes it. A `FAILED` file is written when any test fails, no results are recorded, or the report cannot be generated, and the entrypoint then exits 1.
+The entrypoint, `entrypoint.sh`, runs the suite selected by `PROFILE`, generates the Allure report and publishes it. A `FAILED` file is written when any test fails, no results are recorded, or the report cannot be generated, and the entrypoint then exits 1.
 
 ## Requirements of CDP Environment Tests
 
