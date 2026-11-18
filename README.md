@@ -57,32 +57,36 @@ $env:ENVIRONMENT='test'; npm test
 This lets the importer and inspector teams share one repo without their tests interfering with each other.
 
 ```text
-tests/                   the tests (*.spec.js), one folder per service
+tests/                   the tests, written in Gherkin (*.feature), one folder per service
   importer/
-    home-page.spec.js
+    home-page.feature
     notification/        mirrors the URL /notification/...
   inspector/
+steps/                   step definitions: what each Given / When / Then line does
 pages/                   page objects: one class per page, mirroring tests/
   base-page.js           shared actions (open a page, cookie banner, heading)
-fixtures/index.js        the `test` every spec imports; sets the base address from the folder
+fixtures/index.js        the `test` every step file imports; sets the base address from the folder
 utils/playwright/        config helpers and the CDP FAILED-file reporter
 playwright.config.js     Playwright settings: browser, timeouts, retries, reporters
+.features-gen/           generated Playwright specs (git-ignored, made by `bddgen`)
 entrypoint.sh            what CDP runs in the container
 bin/publish-tests.sh     uploads the report to S3 (CDP)
 ```
+
+Tests are written as plain-English scenarios (BDD) using [playwright-bdd](https://github.com/vitalets/playwright-bdd). `bddgen` turns each `.feature` file into a Playwright spec in `.features-gen/`, keeping the same folders, and Playwright runs those. `npm test` does this for you.
 
 Folders under `tests/` and `pages/` follow the website's URLs. For example `/notification/guidance` is `notification/guidance-page`.
 
 ## Running tests
 
-| Command                                    | What it does                                          |
-| ------------------------------------------ | ----------------------------------------------------- |
-| `npm test`                                 | Runs every test (importer and inspector)              |
-| `npm run test:importer`                    | Runs only the importer tests                          |
-| `npm run test:inspector`                   | Runs only the inspector tests                         |
-| `npm run test:headed`                      | Runs with a visible browser, so you can watch         |
-| `npx playwright test --ui`                 | Opens Playwright's interactive UI, good for debugging |
-| `npx playwright test --grep @notification` | Runs only tests with that tag                         |
+| Command                                      | What it does                                          |
+| -------------------------------------------- | ----------------------------------------------------- |
+| `npm test`                                   | Runs every test (importer and inspector)              |
+| `npm run test:importer`                      | Runs only the importer tests                          |
+| `npm run test:inspector`                     | Runs only the inspector tests                         |
+| `npm run test:headed`                        | Runs with a visible browser, so you can watch         |
+| `npx playwright test --ui`                   | Opens Playwright's interactive UI, good for debugging |
+| `npx playwright test --grep "@notification"` | Runs only tests with that tag                         |
 
 Set `ENVIRONMENT` first for all of these (see [Quick start](#quick-start)).
 
@@ -91,20 +95,21 @@ Set `ENVIRONMENT` first for all of these (see [Quick start](#quick-start)).
 
 ### Running just some tests
 
-| Want to run            | Command                                                        |
-| ---------------------- | -------------------------------------------------------------- |
-| One test, by its title | `npx playwright test -g "guidance page"`                       |
-| A group, by tag        | `npx playwright test --grep @importer`                         |
-| One file               | `npx playwright test tests/importer/home-page.spec.js`         |
-| One folder (one team)  | `npm run test:importer` or `npm run test:inspector`            |
-| Everything             | `npm test`                                                     |
-| One test, by line      | `npx playwright test home-page.spec.js:15` (quick local check) |
+| Want to run            | Command                                              |
+| ---------------------- | ---------------------------------------------------- |
+| One scenario, by title | `npx bddgen; npx playwright test -g "Guidance page"` |
+| A group, by tag        | `npx bddgen; npx playwright test --grep "@importer"` |
+| One feature            | `npx bddgen; npx playwright test importer/home-page` |
+| One folder (one team)  | `npm run test:importer` or `npm run test:inspector`  |
+| Everything             | `npm test`                                           |
 
-Tags in use are `@importer`, `@inspector` and `@notification`. Line numbers go stale when a file changes, so prefer the title or a tag.
+Run `npx bddgen` before `npx playwright test`, so the generated specs match your `.feature` files. `npm test` does it for you. On Mac or Linux use `&&` in place of `;`.
+
+Tags in use are `@importer`, `@inspector` and `@notification`. They are written at the top of a `.feature` file.
 
 Add `--headed` to any command to watch the browser, or `--debug` to step through.
 
-`npm test` clears old results first, so the report is clean. `npx playwright test` keeps them.
+`npm test` generates the specs and clears old results first, so the report is clean. `npx playwright test` does neither.
 
 To see the result, the terminal shows a tick or cross per test. For the full report run `npx playwright show-report` (press `Ctrl+C` to stop it).
 
@@ -123,31 +128,43 @@ To see the result, the terminal shows a tick or cross per test. For the full rep
 
 3. Open the **Testing** panel (flask icon). Click the ▶ next to a test, a file or a folder to run it.
 
+**The panel runs the generated specs in `.features-gen/`.** After you edit a `.feature` file or a step, run `npx bddgen` first (or keep `npx bddgen --watch` running in a terminal), or the panel runs the old version.
+
 If a test fails with `ERR_CONNECTION_REFUSED` on `localhost:3000`, `ENVIRONMENT` is not set. Check step 2, then run **Developer: Reload Window**.
 
 ## Adding a test
 
-1. Put the spec in the folder for its service, named `<page>.spec.js`, such as `tests/importer/notification/guidance-page.spec.js`.
-2. Import `test` and `expect` from `#fixtures`, not from `@playwright/test`. This is what sets the right base address.
-3. Put page locators and actions in a class in `pages/`, mirroring the same folder. It extends `BasePage`.
-4. Add a tag such as `@importer`, `@inspector` or `@notification`.
+1. Write the scenario in the folder for its service, named `<page>.feature`, such as `tests/importer/notification/guidance-page.feature`. Put a tag such as `@importer`, `@inspector` or `@notification` on the first line.
+2. Write each new step in `steps/`. Import `test` and `expect` from `#fixtures`, not from `@playwright/test`, and create the steps with `createBdd(test)`. This is what sets the right base address.
+3. Put page locators and actions in a class in `pages/`, mirroring the same folder. It extends `BasePage`. Steps call these classes and should not hold locators.
+4. Run `npx bddgen`, then the test.
+
+```gherkin
+@importer @notification
+Feature: Guidance page
+
+  Scenario: Guidance page shows its heading
+    Given I open the guidance page
+    Then the page heading is "Submit your seafood import notification"
+```
 
 ```js
+import { createBdd } from 'playwright-bdd'
 import { test, expect } from '#fixtures'
 import { GuidancePage } from '#pages/importer/notification/guidance-page.js'
 
-test.describe('Guidance page', { tag: ['@importer', '@notification'] }, () => {
-  test('should show the guidance heading', async ({ page }) => {
-    const guidancePage = new GuidancePage(page)
-    await guidancePage.open()
-    await expect(guidancePage.pageHeading()).toHaveText(
-      'Submit your seafood import notification'
-    )
-  })
+const { Given, Then } = createBdd(test)
+
+Given('I open the guidance page', async ({ page }) => {
+  await new GuidancePage(page).open()
+})
+
+Then('the page heading is {string}', async ({ page }, heading) => {
+  await expect(new GuidancePage(page).pageHeading()).toHaveText(heading)
 })
 ```
 
-Some tests only check the URL, because the page they reach is still being built. Each says so in a comment, and should be extended when the page is ready.
+Reuse an existing step where the wording matches. Some scenarios only check the URL, because the page they reach is still being built. Each says so in a comment, and should be extended when the page is ready.
 
 ## Reports and failures
 
