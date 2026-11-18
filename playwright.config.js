@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
+import { defineBddConfig } from 'playwright-bdd'
 import {
   getEnvironment,
   throwIfProdEnvironment
@@ -16,6 +17,18 @@ const EXPECT_TIMEOUT_MS = 15_000
 const viewport = { width: 1280, height: 1000 }
 
 /**
+ * Gherkin features (tests/<domain>/*.feature) are turned into Playwright specs
+ * by `bddgen`. featuresRoot keeps the generated tree mirroring tests/, so the
+ * first folder is still the domain.
+ */
+const bddTestDir = defineBddConfig({
+  features: 'tests/**/*.feature',
+  steps: ['steps/**/*.js', 'fixtures/index.js'],
+  featuresRoot: 'tests',
+  outputDir: '.features-gen'
+})
+
+/**
  * e2e against the deployed CDP environment (ENVIRONMENT), or the local
  * services when it is unset. Each spec's baseURL comes from its domain
  * (tests/<domain>/), see fixtures/index.js. A project is browser config only;
@@ -23,8 +36,7 @@ const viewport = { width: 1280, height: 1000 }
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './tests',
-  testMatch: '**/*.spec.js',
+  testDir: bddTestDir,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 1,

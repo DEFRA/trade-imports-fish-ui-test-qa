@@ -11,7 +11,8 @@ export default defineConfig([
       'allure-results/',
       'allure-report/',
       'playwright-report/',
-      'test-results/'
+      'test-results/',
+      '.features-gen/'
     ]
   },
 
@@ -38,5 +39,11 @@ export default defineConfig([
     }
   },
 
-  eslintConfigPrettier
+  eslintConfigPrettier,
+
+  {
+    // BDD steps run inside generated tests, which the rule cannot see
+    files: ['steps/**/*.js'],
+    rules: { 'playwright/no-standalone-expect': 'off' }
+  }
 ])
