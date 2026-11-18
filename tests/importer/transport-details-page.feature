@@ -1,4 +1,4 @@
-@importer @notification
+@importer
 Feature: Transport details page
 
   # Only the URL is checked while the transport details page is still being built

@@ -87,7 +87,7 @@ Under each service folder there is one file per page, named after the page (`hom
 | `npm run test:inspector`                     | Runs only the inspector tests                         |
 | `npm run test:headed`                        | Runs with a visible browser, so you can watch         |
 | `npx playwright test --ui`                   | Opens Playwright's interactive UI, good for debugging |
-| `npx playwright test --grep "@notification"` | Runs only tests with that tag                         |
+| `npx playwright test --grep "@importer"`     | Runs only tests with that tag                         |
 
 Set `ENVIRONMENT` first for all of these (see [Quick start](#quick-start)).
 
@@ -106,7 +106,7 @@ Set `ENVIRONMENT` first for all of these (see [Quick start](#quick-start)).
 
 Run `npx bddgen` before `npx playwright test`, so the generated specs match your `.feature` files. `npm test` does it for you. On Mac or Linux use `&&` in place of `;`.
 
-Tags in use are `@importer`, `@inspector` and `@notification`. They are written at the top of a `.feature` file.
+Tags in use are `@importer` and `@inspector`. They are written at the top of a `.feature` file.
 
 Add `--headed` to any command to watch the browser, or `--debug` to step through.
 
@@ -135,13 +135,13 @@ If a test fails with `ERR_CONNECTION_REFUSED` on `localhost:3000`, `ENVIRONMENT`
 
 ## Adding a test
 
-1. Write the scenario in the folder for its service, named `<page>.feature`, such as `tests/importer/guidance-page.feature`. Put a tag such as `@importer`, `@inspector` or `@notification` on the first line.
+1. Write the scenario in the folder for its service, named `<page>.feature`, such as `tests/importer/guidance-page.feature`. Put a tag such as `@importer` or `@inspector` on the first line.
 2. Write each new step in `steps/`. Import `test` and `expect` from `#fixtures`, not from `@playwright/test`, and create the steps with `createBdd(test)`. This is what sets the right base address.
 3. Put page locators and actions in a class in `pages/`, mirroring the same folder. It extends `BasePage`. Steps call these classes and should not hold locators.
 4. Run `npx bddgen`, then the test.
 
 ```gherkin
-@importer @notification
+@importer
 Feature: Guidance page
 
   Scenario: Guidance page shows its heading

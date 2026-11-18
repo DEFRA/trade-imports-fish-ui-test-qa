@@ -1,4 +1,4 @@
-@importer @notification
+@importer
 Feature: Guidance page
 
   Scenario: Guidance page shows its heading
