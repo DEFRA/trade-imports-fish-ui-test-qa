@@ -16,16 +16,16 @@ The setup follows [DEFRA/trade-imports-ins-tests](https://github.com/DEFRA/trade
 
 ## Status
 
-| Area                                                  | State                                                                                           |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Tests (importer and inspector)                        | Working. They run against the CDP `test` environment.                                           |
-| Playwright config, reports and the `FAILED` marker    | Working and checked locally.                                                                    |
-| `entrypoint.sh` and the `PROFILE` setting             | Working when run locally. Not yet run inside a container or in the CDP Portal.                  |
-| **Dockerfile**                                        | **Not done.** It is still the old WebdriverIO version, so the image cannot run these tests yet. |
-| **CDP Portal run and S3 publishing**                  | **Not tested.** It needs the Dockerfile first, and the suite registered in the portal.          |
-| **Running against local services**                    | **Not tested.** The inspector's local port (`3001`) is a guess and needs confirming.            |
-| Checks on pull requests                               | Format and lint only. The tests do not run on GitHub.                                           |
-| Extra suites (accessibility, cross-browser, security) | Not included. The reference repo has them.                                                      |
+| Area                                                  | State                                                                                 |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Tests (importer and inspector)                        | Working. They run against the CDP `test` environment.                                 |
+| Playwright config, reports and the `FAILED` marker    | Working and checked locally.                                                          |
+| `entrypoint.sh` and the `PROFILE` setting             | Working locally and in a local Docker container. Not yet run in the CDP Portal.       |
+| Dockerfile                                            | Working. Built and run locally on the Playwright image, and the tests pass inside it. |
+| **CDP Portal run and S3 publishing**                  | **Not tested.** It needs the suite registered in the portal and a merge to `main`.    |
+| **Running against local services**                    | **Not tested.** The inspector's local port (`3001`) is a guess and needs confirming.  |
+| Checks on pull requests                               | Format and lint only. The tests do not run on GitHub.                                 |
+| Extra suites (accessibility, cross-browser, security) | Not included. The reference repo has them.                                            |
 
 ## Quick start
 
@@ -224,9 +224,17 @@ The CDP Portal sets `PROFILE` to choose a suite:
 2. The entrypoint exits 0 when the suite passes and non-zero when it fails.
 3. The report is published to S3 using `./bin/publish-tests.sh`.
 
+### Running the Docker image locally
+
+```bash
+docker build --platform=linux/amd64 -t fish-ui-tests .
+docker run --rm -e ENVIRONMENT=test -e PROFILE=importer fish-ui-tests
+```
+
+`--platform=linux/amd64` is needed because the AWS CLI in the image is amd64 only. Locally the container exits with 1 even when the tests pass, because `RESULTS_OUTPUT_S3_PATH` is not set and the report cannot be uploaded. On Windows, `entrypoint.sh` and `bin/publish-tests.sh` must have LF line endings, or the container fails with `no such file or directory`.
+
 ### Still to do
 
-- Update the `Dockerfile` for Playwright and build it. It needs a Playwright base image that includes the browsers, and `npm ci`.
 - Check with the platform team that the suite is registered in the portal, and how profiles are set up for it.
 - Decide how to test the image before merging. `publish.yml` only builds on `main`, while the reference repo also has a branch-publish workflow.
 
