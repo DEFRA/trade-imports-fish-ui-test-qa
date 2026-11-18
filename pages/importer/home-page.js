@@ -6,7 +6,7 @@ export class HomePage extends BasePage {
     await super.open('/')
   }
 
-  async startNewNotification() {
+  async createNewImport() {
     await this.page
       .getByRole('button', { name: 'Create a new import notification' })
       .click()

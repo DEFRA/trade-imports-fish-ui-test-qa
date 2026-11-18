@@ -5,7 +5,7 @@ Feature: Home page
     Given I am on the importer home page
     Then the page title is "Import fish and fishery products | trade-imports-fish-importer-fe"
 
-  Scenario: Start a new import notification
+  Scenario: Create a new import
     Given I am on the importer home page
-    When I start a new import notification
+    When I create a new import
     Then I am on the guidance page

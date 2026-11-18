@@ -8,8 +8,8 @@ Given('I am on the importer home page', async ({ page }) => {
   await new HomePage(page).open()
 })
 
-When('I start a new import notification', async ({ page }) => {
-  await new HomePage(page).startNewNotification()
+When('I create a new import', async ({ page }) => {
+  await new HomePage(page).createNewImport()
 })
 
 Then('the page title is {string}', async ({ page }, title) => {

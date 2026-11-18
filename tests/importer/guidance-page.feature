@@ -6,7 +6,7 @@ Feature: Guidance page
     Then I am on the guidance page
     And the page heading is "Submit your seafood import notification"
 
-  Scenario: Start the notification from the guidance page
+  Scenario: Start now from the guidance page
     Given I open the guidance page
-    When I start the notification
+    When I click Start now
     Then I am on the transport details page

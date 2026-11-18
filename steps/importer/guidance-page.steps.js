@@ -8,7 +8,7 @@ Given('I open the guidance page', async ({ page }) => {
   await new GuidancePage(page).open()
 })
 
-When('I start the notification', async ({ page }) => {
+When('I click Start now', async ({ page }) => {
   await new GuidancePage(page).startNow()
 })
 
