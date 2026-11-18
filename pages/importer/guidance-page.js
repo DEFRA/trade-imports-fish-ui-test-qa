@@ -1,4 +1,4 @@
-import { BasePage } from '../../base-page.js'
+import { BasePage } from '../base-page.js'
 import { TransportDetailsPage } from './transport-details-page.js'
 
 export class GuidancePage extends BasePage {

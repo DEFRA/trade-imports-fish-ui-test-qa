@@ -1,5 +1,5 @@
 import { BasePage } from '../base-page.js'
-import { GuidancePage } from './notification/guidance-page.js'
+import { GuidancePage } from './guidance-page.js'
 
 export class HomePage extends BasePage {
   async open() {

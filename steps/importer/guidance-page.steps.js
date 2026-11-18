@@ -1,6 +1,6 @@
 import { createBdd } from 'playwright-bdd'
 import { test, expect } from '#fixtures'
-import { GuidancePage } from '#pages/importer/notification/guidance-page.js'
+import { GuidancePage } from '#pages/importer/guidance-page.js'
 
 const { Given, When, Then } = createBdd(test)
 

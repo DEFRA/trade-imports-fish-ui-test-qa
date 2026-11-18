@@ -60,7 +60,8 @@ This lets the importer and inspector teams share one repo without their tests in
 tests/                   the tests, written in Gherkin (*.feature), one folder per service
   importer/
     home-page.feature
-    notification/        mirrors the URL /notification/...
+    guidance-page.feature
+    transport-details-page.feature
   inspector/
 steps/                   step definitions (Given / When / Then), one file per page, mirroring tests/
 pages/                   page objects: one class per page, mirroring tests/
@@ -75,7 +76,7 @@ bin/publish-tests.sh     uploads the report to S3 (CDP)
 
 Tests are written as plain-English scenarios (BDD) using [playwright-bdd](https://github.com/vitalets/playwright-bdd). `bddgen` turns each `.feature` file into a Playwright spec in `.features-gen/`, keeping the same folders, and Playwright runs those. `npm test` does this for you.
 
-Folders under `tests/` and `pages/` follow the website's URLs. For example `/notification/guidance` is `notification/guidance-page`.
+Under each service folder there is one file per page, named after the page (`home-page`, `guidance-page`, `transport-details-page`).
 
 ## Running tests
 
@@ -134,7 +135,7 @@ If a test fails with `ERR_CONNECTION_REFUSED` on `localhost:3000`, `ENVIRONMENT`
 
 ## Adding a test
 
-1. Write the scenario in the folder for its service, named `<page>.feature`, such as `tests/importer/notification/guidance-page.feature`. Put a tag such as `@importer`, `@inspector` or `@notification` on the first line.
+1. Write the scenario in the folder for its service, named `<page>.feature`, such as `tests/importer/guidance-page.feature`. Put a tag such as `@importer`, `@inspector` or `@notification` on the first line.
 2. Write each new step in `steps/`. Import `test` and `expect` from `#fixtures`, not from `@playwright/test`, and create the steps with `createBdd(test)`. This is what sets the right base address.
 3. Put page locators and actions in a class in `pages/`, mirroring the same folder. It extends `BasePage`. Steps call these classes and should not hold locators.
 4. Run `npx bddgen`, then the test.
@@ -151,7 +152,7 @@ Feature: Guidance page
 ```js
 import { createBdd } from 'playwright-bdd'
 import { test, expect } from '#fixtures'
-import { GuidancePage } from '#pages/importer/notification/guidance-page.js'
+import { GuidancePage } from '#pages/importer/guidance-page.js'
 
 const { Given, Then } = createBdd(test)
 
