@@ -62,7 +62,7 @@ tests/                   the tests, written in Gherkin (*.feature), one folder p
     home-page.feature
     notification/        mirrors the URL /notification/...
   inspector/
-steps/                   step definitions: what each Given / When / Then line does
+steps/                   step definitions (Given / When / Then), one file per page, mirroring tests/
 pages/                   page objects: one class per page, mirroring tests/
   base-page.js           shared actions (open a page, cookie banner, heading)
 fixtures/index.js        the `test` every step file imports; sets the base address from the folder
