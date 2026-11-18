@@ -89,6 +89,42 @@ Set `ENVIRONMENT` first for all of these (see [Quick start](#quick-start)).
 - **Without `ENVIRONMENT`,** the tests expect the services running locally: importer on `http://localhost:3000` and inspector on `http://localhost:3001`. The inspector port is unconfirmed and this mode is untested.
 - **`prod` is refused.** The tests never run against production.
 
+### Running just some tests
+
+| Want to run            | Command                                                        |
+| ---------------------- | -------------------------------------------------------------- |
+| One test, by its title | `npx playwright test -g "guidance page"`                       |
+| A group, by tag        | `npx playwright test --grep @importer`                         |
+| One file               | `npx playwright test tests/importer/home-page.spec.js`         |
+| One folder (one team)  | `npm run test:importer` or `npm run test:inspector`            |
+| Everything             | `npm test`                                                     |
+| One test, by line      | `npx playwright test home-page.spec.js:15` (quick local check) |
+
+Tags in use are `@importer`, `@inspector` and `@notification`. Line numbers go stale when a file changes, so prefer the title or a tag.
+
+Add `--headed` to any command to watch the browser, or `--debug` to step through.
+
+`npm test` clears old results first, so the report is clean. `npx playwright test` keeps them.
+
+To see the result, the terminal shows a tick or cross per test. For the full report run `npx playwright show-report` (press `Ctrl+C` to stop it).
+
+### Running tests from VS Code
+
+1. Install the **Playwright Test for VS Code** extension (publisher Microsoft, `ms-playwright.playwright`).
+2. Create `.vscode/settings.json` so the extension knows the environment. It does not see variables you set in a terminal. `.vscode` is git-ignored, so each person creates their own:
+
+   ```json
+   {
+     "playwright.env": {
+       "ENVIRONMENT": "test"
+     }
+   }
+   ```
+
+3. Open the **Testing** panel (flask icon). Click the ▶ next to a test, a file or a folder to run it.
+
+If a test fails with `ERR_CONNECTION_REFUSED` on `localhost:3000`, `ENVIRONMENT` is not set. Check step 2, then run **Developer: Reload Window**.
+
 ## Adding a test
 
 1. Put the spec in the folder for its service, named `<page>.spec.js`, such as `tests/importer/notification/guidance-page.spec.js`.
