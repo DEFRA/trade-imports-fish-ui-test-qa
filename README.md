@@ -43,7 +43,7 @@ On Windows PowerShell:
 $env:ENVIRONMENT='test'; npm test
 ```
 
-`ENVIRONMENT=test` points the tests at the CDP `test` environment, which is reachable without a VPN.
+`ENVIRONMENT=test` points the tests at the CDP `test` environment, which is reachable without a VPN. All the variables the tests read are listed in `.env.example`.
 
 ## How the tests are organised
 
