@@ -128,7 +128,7 @@ To see the result, the terminal shows a tick or cross per test. For the full rep
 
 3. Open the **Testing** panel (flask icon). Click the ▶ next to a test, a file or a folder to run it.
 
-**The panel runs the generated specs in `.features-gen/`.** After you edit a `.feature` file or a step, run `npx bddgen` first (or keep `npx bddgen --watch` running in a terminal), or the panel runs the old version.
+**The panel runs the generated specs in `.features-gen/`.** After you edit a `.feature` file or a step, the panel runs the old version until the specs are regenerated. Either run `npx bddgen` after each edit, or start `npm run bddgen:watch` in a terminal once and leave it running. It regenerates whenever you save a file in `tests/`, `steps/` or `pages/`.
 
 If a test fails with `ERR_CONNECTION_REFUSED` on `localhost:3000`, `ENVIRONMENT` is not set. Check step 2, then run **Developer: Reload Window**.
 
