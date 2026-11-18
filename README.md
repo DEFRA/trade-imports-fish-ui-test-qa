@@ -80,14 +80,14 @@ Under each service folder there is one file per page, named after the page (`hom
 
 ## Running tests
 
-| Command                                      | What it does                                          |
-| -------------------------------------------- | ----------------------------------------------------- |
-| `npm test`                                   | Runs every test (importer and inspector)              |
-| `npm run test:importer`                      | Runs only the importer tests                          |
-| `npm run test:inspector`                     | Runs only the inspector tests                         |
-| `npm run test:headed`                        | Runs with a visible browser, so you can watch         |
-| `npx playwright test --ui`                   | Opens Playwright's interactive UI, good for debugging |
-| `npx playwright test --grep "@importer"`     | Runs only tests with that tag                         |
+| Command                                  | What it does                                          |
+| ---------------------------------------- | ----------------------------------------------------- |
+| `npm test`                               | Runs every test (importer and inspector)              |
+| `npm run test:importer`                  | Runs only the importer tests                          |
+| `npm run test:inspector`                 | Runs only the inspector tests                         |
+| `npm run test:headed`                    | Runs with a visible browser, so you can watch         |
+| `npx playwright test --ui`               | Opens Playwright's interactive UI, good for debugging |
+| `npx playwright test --grep "@importer"` | Runs only tests with that tag                         |
 
 Set `ENVIRONMENT` first for all of these (see [Quick start](#quick-start)).
 
