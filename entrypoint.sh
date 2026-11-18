@@ -34,11 +34,11 @@ suite="${PROFILE#*:}"
 
 TEST_PATH=""
 if [ "$PROFILE" = "default" ]; then
-  TEST_PATH="tests/"
+  TEST_PATH=".features-gen/"
 elif [ "$suite" = "e2e" ]; then
   case "$domain" in
     # The trailing slash matters: Playwright treats the path as a regex
-    importer | inspector) TEST_PATH="tests/$domain/" ;;
+    importer | inspector) TEST_PATH=".features-gen/$domain/" ;;
   esac
 fi
 
@@ -51,6 +51,8 @@ rm -rf test-results playwright-report "$RESULTS_DIR" "$REPORT_DIR" FAILED
 if [ -z "$TEST_PATH" ]; then
   echo "unknown PROFILE '$PROFILE' (expected default, importer, inspector, importer:e2e or inspector:e2e)" >> FAILED
 else
+  # Generate the Playwright specs from the .feature files first
+  npx bddgen || echo "bddgen exited $? before completing" >> FAILED
   npx playwright test "$TEST_PATH" || echo "playwright test exited $? before completing" >> FAILED
 fi
 
