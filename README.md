@@ -133,6 +133,20 @@ To see the result, the terminal shows a tick or cross per test. For the full rep
 
 If a test fails with `ERR_CONNECTION_REFUSED` on `localhost:3000`, `ENVIRONMENT` is not set. Check step 2, then run **Developer: Reload Window**.
 
+### Jumping from a step to its code
+
+1. Install the **Cucumber** extension (publisher Cucumber, `CucumberOpen.cucumber-official`).
+2. Add these to `.vscode/settings.json`, next to `playwright.env`:
+
+   ```json
+   {
+     "cucumber.features": ["tests/**/*.feature"],
+     "cucumber.glue": ["steps/**/*.js"]
+   }
+   ```
+
+3. In a `.feature` file, `Ctrl+click` a step (or press `F12`) to open its definition in `steps/`.
+
 ## Adding a test
 
 1. Write the scenario in the folder for its service, named `<page>.feature`, such as `tests/importer/guidance-page.feature`. Put a tag such as `@importer` or `@inspector` on the first line.
