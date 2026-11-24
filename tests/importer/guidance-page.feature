@@ -1,6 +1,9 @@
 @importer
 Feature: Guidance page
 
+  Background:
+    Given I am signed in as "North Quay Importer"
+
   Scenario: Guidance page shows its heading
     Given I open the guidance page
     Then I am on the guidance page
