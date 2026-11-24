@@ -9,5 +9,5 @@ Given('I am on the inspector home page', async ({ page }) => {
 })
 
 Then('the inspector home page URL is shown', async ({ page }) => {
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL(/\/inspections$/)
 })
