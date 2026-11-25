@@ -20,4 +20,8 @@ export class TransportDetailsPage extends BasePage {
   selectedMethods() {
     return this.page.getByRole('radio', { checked: true })
   }
+
+  fieldError() {
+    return this.page.locator('.govuk-error-message')
+  }
 }

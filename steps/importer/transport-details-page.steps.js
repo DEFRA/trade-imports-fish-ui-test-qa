@@ -20,6 +20,24 @@ When('I start another new import', async ({ page }) => {
   await startNewImport(page)
 })
 
+When('I clear my cookies', async ({ context }) => {
+  await context.clearCookies()
+})
+
+// Both tabs share one browser context, so they share the same session cookies
+When('I start a new import in another tab', async ({ context }) => {
+  await startNewImport(await context.newPage())
+})
+
+When(
+  'I select the transport method {string} and save and continue in the other tab',
+  async ({ context }, method) => {
+    const transportDetailsPage = new TransportDetailsPage(context.pages()[1])
+    await transportDetailsPage.select(method)
+    await transportDetailsPage.saveAndContinue()
+  }
+)
+
 When('I reopen the transport details page', async ({ page }) => {
   await new TransportDetailsPage(page).open()
 })
@@ -54,6 +72,12 @@ Then('the transport method {string} is selected', async ({ page }, method) => {
 
 Then('no transport method is selected', async ({ page }) => {
   await expect(new TransportDetailsPage(page).selectedMethods()).toHaveCount(0)
+})
+
+Then('the field error says {string}', async ({ page }, message) => {
+  await expect(new TransportDetailsPage(page).fieldError()).toContainText(
+    message
+  )
 })
 
 Then('the error summary says {string}', async ({ page }, message) => {
