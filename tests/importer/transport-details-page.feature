@@ -27,6 +27,18 @@ Feature: Transport details page
     And the error summary says "Select how the consignment is being transported"
     And the field error says "Select how the consignment is being transported"
 
+  # Only the key part of the wording is checked because the text is provisional until content review
+  Scenario: The page explains that transport details come from the uploaded documents
+    Given I start a new import
+    Then the page explains "documents you upload"
+
+  # Radio buttons: choosing a second option replaces the first
+  Scenario: Only one transport method can be selected at a time
+    Given I start a new import
+    When I select the transport method "Ship or vessel"
+    And I select the transport method "Air freight"
+    Then only the transport method "Air freight" is selected
+
   Scenario: A saved transport method is still selected when the page is reopened
     Given I start a new import
     When I select the transport method "Air freight" and save and continue

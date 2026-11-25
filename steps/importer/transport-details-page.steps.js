@@ -42,6 +42,10 @@ When('I reopen the transport details page', async ({ page }) => {
   await new TransportDetailsPage(page).open()
 })
 
+When('I select the transport method {string}', async ({ page }, method) => {
+  await new TransportDetailsPage(page).select(method)
+})
+
 When(
   'I select the transport method {string} and save and continue',
   async ({ page }, method) => {
@@ -61,6 +65,19 @@ When(
 Then('I am on the transport details page', async ({ page }) => {
   await expect(page).toHaveURL(/\/notification\/transport-details$/)
 })
+
+Then('the page explains {string}', async ({ page }, text) => {
+  await expect(page.getByText(text)).toBeVisible()
+})
+
+Then(
+  'only the transport method {string} is selected',
+  async ({ page }, method) => {
+    const transportDetailsPage = new TransportDetailsPage(page)
+    await expect(transportDetailsPage.selected(method)).toBeChecked()
+    await expect(transportDetailsPage.selectedMethods()).toHaveCount(1)
+  }
+)
 
 Then('I am on the consignment arrival details page', async ({ page }) => {
   await expect(page).toHaveURL(/\/notification\/consignment-arrival-details$/)
