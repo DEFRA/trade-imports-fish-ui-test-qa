@@ -52,8 +52,11 @@ if [ -z "$TEST_PATH" ]; then
   echo "unknown PROFILE '$PROFILE' (expected default, importer, inspector, importer:e2e or inspector:e2e)" >> FAILED
 else
   # Generate the Playwright specs from the .feature files first
-  npx bddgen || echo "bddgen exited $? before completing" >> FAILED
-  npx playwright test "$TEST_PATH" || echo "playwright test exited $? before completing" >> FAILED
+  if npx bddgen; then
+    npx playwright test "$TEST_PATH" || echo "playwright test exited $? before completing" >> FAILED
+  else
+    echo "bddgen exited $? before completing" >> FAILED
+  fi
 fi
 
 # Belt and braces: a "successful" run that recorded no results is a failure
