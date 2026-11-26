@@ -10,4 +10,7 @@ coverage
 .png
 allure-report/
 allure-results/
+playwright-report/
+test-results/
+.features-gen/
 FAILED
