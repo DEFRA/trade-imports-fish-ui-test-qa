@@ -49,7 +49,7 @@ Feature: Transport details page
   Scenario: Starting another new import does not reuse the previous transport method
     Given I start a new import
     And I select the transport method "Ship or vessel" and save and continue
-    When I start another new import
+    When I start a new import
     Then no transport method is selected
 
   # Goes to the guidance page directly instead of via the home page, then clicks Start now
@@ -66,16 +66,17 @@ Feature: Transport details page
     And I select the transport method "Road vehicle" and save and continue
     When I clear my cookies
     And I am signed in as "North Quay Importer"
-    And I start another new import
+    And I start a new import
     Then no transport method is selected
 
+  # With no draft, going directly to transport details redirects to the guidance page
   Scenario: After clearing cookies, reopening transport details does not show the old draft
     Given I start a new import
     And I select the transport method "Road vehicle" and save and continue
     When I clear my cookies
     And I am signed in as "North Quay Importer"
     And I reopen the transport details page
-    Then no transport method is selected
+    Then I am on the guidance page
 
   # Going straight to the URL (not through Start now) is what picks up the existing draft
   Scenario: Signing out and back in as the same user keeps the draft, and changes update it
@@ -95,7 +96,7 @@ Feature: Transport details page
     When I sign out
     And I am signed in as "Westhaven Importer"
     And I reopen the transport details page
-    Then no transport method is selected
+    Then I am on the guidance page
 
   # Pressing Start now after signing back in starts a new draft instead of reusing the old one
   Scenario: Start now after signing back in creates a new draft

@@ -13,6 +13,11 @@ export const test = base.extend({
   baseURL: async ({}, use, testInfo) => {
     const domain = domainFromSpecPath(testInfo.file, testInfo.project.testDir)
     await use(baseUrlForDomain(domain))
+  },
+
+  // Holds pages opened during a scenario in addition to the main one, by name
+  tabs: async ({}, use) => {
+    await use({})
   }
 })
 

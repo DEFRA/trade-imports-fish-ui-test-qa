@@ -2,8 +2,10 @@ import { BasePage } from '../base-page.js'
 import { TransportDetailsPage } from './transport-details-page.js'
 
 export class GuidancePage extends BasePage {
+  static path = '/notification/guidance'
+
   async open() {
-    await super.open('/notification/guidance')
+    await super.open(GuidancePage.path)
   }
 
   async startNow() {

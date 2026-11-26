@@ -12,4 +12,11 @@ export class HomePage extends BasePage {
       .click()
     return new GuidancePage(this.page)
   }
+
+  // The whole journey: home page, Create a new import notification, then Start now
+  async startNewImport() {
+    await this.open()
+    const guidancePage = await this.createNewImport()
+    return guidancePage.startNow()
+  }
 }

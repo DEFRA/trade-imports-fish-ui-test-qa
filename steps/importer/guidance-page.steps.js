@@ -2,18 +2,14 @@ import { createBdd } from 'playwright-bdd'
 import { test, expect } from '#fixtures'
 import { GuidancePage } from '#pages/importer/guidance-page.js'
 
-const { Given, When, Then } = createBdd(test)
+const { When, Then, Step } = createBdd(test)
 
-Given('I open the guidance page', async ({ page }) => {
+Step('I open the guidance page', async ({ page }) => {
   await new GuidancePage(page).open()
 })
 
 When('I click Start now', async ({ page }) => {
   await new GuidancePage(page).startNow()
-})
-
-Then('the page heading is {string}', async ({ page }, heading) => {
-  await expect(new GuidancePage(page).pageHeading()).toHaveText(heading)
 })
 
 Then('I am on the guidance page', async ({ page }) => {

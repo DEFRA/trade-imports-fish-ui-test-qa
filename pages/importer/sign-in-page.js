@@ -1,8 +1,10 @@
 import { BasePage } from '../base-page.js'
 
 export class SignInPage extends BasePage {
+  static path = '/auth/sign-in'
+
   async open() {
-    await super.open('/auth/sign-in')
+    await super.open(SignInPage.path)
   }
 
   async signInAs(testUser) {

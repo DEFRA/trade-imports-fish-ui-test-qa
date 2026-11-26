@@ -3,21 +3,11 @@ import { test, expect } from '#fixtures'
 import { HomePage } from '#pages/importer/home-page.js'
 import { TransportDetailsPage } from '#pages/importer/transport-details-page.js'
 
-const { Given, When, Then } = createBdd(test)
+const { When, Then, Step } = createBdd(test)
 
-async function startNewImport(page) {
-  const homePage = new HomePage(page)
-  await homePage.open()
-  const guidancePage = await homePage.createNewImport()
-  await guidancePage.startNow()
-}
-
-Given('I start a new import', async ({ page }) => {
-  await startNewImport(page)
-})
-
-When('I start another new import', async ({ page }) => {
-  await startNewImport(page)
+// Step works with any keyword, for steps used as Given, When or And depending on the scenario
+Step('I start a new import', async ({ page }) => {
+  await new HomePage(page).startNewImport()
 })
 
 When('I clear my cookies', async ({ context }) => {
@@ -25,20 +15,19 @@ When('I clear my cookies', async ({ context }) => {
 })
 
 // Both tabs share one browser context, so they share the same session cookies
-When('I start a new import in another tab', async ({ context }) => {
-  await startNewImport(await context.newPage())
+When('I start a new import in another tab', async ({ context, tabs }) => {
+  tabs.other = await context.newPage()
+  await new HomePage(tabs.other).startNewImport()
 })
 
 When(
   'I select the transport method {string} and save and continue in the other tab',
-  async ({ context }, method) => {
-    const transportDetailsPage = new TransportDetailsPage(context.pages()[1])
-    await transportDetailsPage.select(method)
-    await transportDetailsPage.saveAndContinue()
+  async ({ tabs }, method) => {
+    await new TransportDetailsPage(tabs.other).selectAndSave(method)
   }
 )
 
-When('I reopen the transport details page', async ({ page }) => {
+Step('I reopen the transport details page', async ({ page }) => {
   await new TransportDetailsPage(page).open()
 })
 
@@ -46,12 +35,10 @@ When('I select the transport method {string}', async ({ page }, method) => {
   await new TransportDetailsPage(page).select(method)
 })
 
-When(
+Step(
   'I select the transport method {string} and save and continue',
   async ({ page }, method) => {
-    const transportDetailsPage = new TransportDetailsPage(page)
-    await transportDetailsPage.select(method)
-    await transportDetailsPage.saveAndContinue()
+    await new TransportDetailsPage(page).selectAndSave(method)
   }
 )
 
@@ -67,7 +54,7 @@ Then('I am on the transport details page', async ({ page }) => {
 })
 
 Then('the page explains {string}', async ({ page }, text) => {
-  await expect(page.getByText(text)).toBeVisible()
+  await expect(new TransportDetailsPage(page).explanation(text)).toBeVisible()
 })
 
 Then(
@@ -88,7 +75,10 @@ Then('the transport method {string} is selected', async ({ page }, method) => {
 })
 
 Then('no transport method is selected', async ({ page }) => {
-  await expect(new TransportDetailsPage(page).selectedMethods()).toHaveCount(0)
+  const transportDetailsPage = new TransportDetailsPage(page)
+  await expect(page).toHaveURL(/\/notification\/transport-details$/)
+  await expect(transportDetailsPage.selected('Ship or vessel')).toBeVisible()
+  await expect(transportDetailsPage.selectedMethods()).toHaveCount(0)
 })
 
 Then('the field error says {string}', async ({ page }, message) => {
