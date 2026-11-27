@@ -3,16 +3,22 @@ import js from '@eslint/js'
 import globals from 'globals'
 import eslintPluginPrettier from 'eslint-plugin-prettier'
 import eslintConfigPrettier from 'eslint-config-prettier/flat'
-import { configs as wdioConfig } from 'eslint-plugin-wdio'
+import playwright from 'eslint-plugin-playwright'
 
 export default defineConfig([
   {
-    ignores: ['allure-results/', 'allure-report/', 'docker/']
+    ignores: [
+      'allure-results/',
+      'allure-report/',
+      'playwright-report/',
+      'test-results/',
+      '.features-gen/'
+    ]
   },
 
   js.configs.recommended,
 
-  wdioConfig['flat/recommended'],
+  playwright.configs['flat/recommended'],
 
   {
     files: ['**/*.js'],
@@ -20,8 +26,7 @@ export default defineConfig([
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {
-        ...globals.node,
-        ...globals.mocha
+        ...globals.node
       }
     },
     plugins: {
@@ -34,5 +39,11 @@ export default defineConfig([
     }
   },
 
-  eslintConfigPrettier
+  eslintConfigPrettier,
+
+  {
+    // BDD steps run inside generated tests, which the rule cannot see
+    files: ['steps/**/*.js'],
+    rules: { 'playwright/no-standalone-expect': 'off' }
+  }
 ])
