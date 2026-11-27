@@ -66,8 +66,8 @@ Then(
   }
 )
 
-Then('I am on the consignment arrival details page', async ({ page }) => {
-  await expect(page).toHaveURL(/\/notification\/consignment-arrival-details$/)
+Then('I am on the consignment details page', async ({ page }) => {
+  await expect(page).toHaveURL(/\/notification\/consignment-details$/)
 })
 
 Then('the transport method {string} is selected', async ({ page }, method) => {

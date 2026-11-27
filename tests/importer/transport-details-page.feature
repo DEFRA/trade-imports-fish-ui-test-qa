@@ -12,7 +12,7 @@ Feature: Transport details page
     Given I am signed in as "<user>"
     And I start a new import
     When I select the transport method "<method>" and save and continue
-    Then I am on the consignment arrival details page
+    Then I am on the consignment details page
 
     Examples:
       | user                     | method         |
