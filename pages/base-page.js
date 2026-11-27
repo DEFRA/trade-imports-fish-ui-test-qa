@@ -7,12 +7,16 @@ export class BasePage {
     return this.page.locator('h1')
   }
 
-  title() {
-    return this.page.title()
-  }
-
   errorSummary() {
     return this.page.locator('.govuk-error-summary')
+  }
+
+  fieldError() {
+    return this.page.locator('.govuk-error-message')
+  }
+
+  async saveAndContinue() {
+    await this.page.getByRole('button', { name: 'Save and continue' }).click()
   }
 
   async clickContinue() {
