@@ -2,9 +2,9 @@ import { createBdd } from 'playwright-bdd'
 import { test, expect } from '#fixtures'
 import { GuidancePage } from '#pages/importer/guidance-page.js'
 
-const { When, Then, Step } = createBdd(test)
+const { Given, When, Then } = createBdd(test)
 
-Step('I open the guidance page', async ({ page }) => {
+Given('I open the guidance page', async ({ page }) => {
   await new GuidancePage(page).open()
 })
 

@@ -16,20 +16,12 @@ export class TransportDetailsPage extends BasePage {
     await this.saveAndContinue()
   }
 
-  async saveAndContinue() {
-    await this.page.getByRole('button', { name: 'Save and continue' }).click()
-  }
-
   selected(method) {
     return this.page.getByRole('radio', { name: method })
   }
 
   selectedMethods() {
     return this.page.getByRole('radio', { checked: true })
-  }
-
-  fieldError() {
-    return this.page.locator('.govuk-error-message')
   }
 
   explanation(text) {
